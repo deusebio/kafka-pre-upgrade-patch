@@ -11,7 +11,22 @@ The `test-bundles` folder contains some bundle to deploy some environment where 
 
 ## Process
 
-Both upgrades make use of a *preparatory* revision can make sure that the charm state is patched with the necessary modification to make the use of the proper in-place upgrade feature possible. These charm revisions are provided in the `charms` folder. 
+The process has been tested both on Juju 2.9.45, Juju 2.9.46 and Juju 3.1.6.
+
+The process involved upgrading both Kafka and Zookeeper. Although the order should not matter given the cross-compatiility of versions between Kafka and Zookeeper, if Zookeeper is updated first, because of a small bug this require to use the version of the Kafka charm from the PR#158, that is also provided in this repository. 
+
+Both upgrades (Kafka and Zookeeper) make use of a *preparatory* revision can make sure that the charm state is patched with the necessary modification to make the use of the proper in-place upgrade feature possible. These charm revisions are provided in the `charms` folder, and are named `kafka_ubuntu-22.04-amd64.charm` and `zookeeper_ubuntu-22.04-amd64.charm`.
+
+While doing the tests, we have also found some small tuning that contributes to make the upgrade process more robust and reliable. At the time of writing, these version of the charms are not yet landed in charmhub so the `charms` folder also contains the versions corresponding to these features, and they are named `kafka_ubuntu-22.04-amd64.pr158.charm` and `zookeeper_ubuntu-22.04-amd64.pr104.charm`. 
+
+For convenience, in the next table we provide a description of the charm files in the `charms` folder and their code-version counterparts:
+
+| File                                     | Link                                                                |
+|------------------------------------------|---------------------------------------------------------------------|
+| kafka_ubuntu-22.04-amd64.charm           | https://github.com/deusebio/kafka-operator/tree/test-sf-upgrade     |
+| kafka_ubuntu-22.04-amd64.pr158.charm     | https://github.com/canonical/kafka-operator/pull/158                |
+| zookeeper_ubuntu-22.04-amd64.charm       | https://github.com/deusebio/zookeeper-operator/tree/test-sf-upgrade |
+| zookeeper_ubuntu-22.04-amd64.pr104.charm | https://github.com/canonical/zookeeper-operator/pull/104            |
 
 ### Upgrade Zookeeper
 
@@ -57,6 +72,8 @@ juju run-action zookeeper/leader pre-upgrade-check --wait
 juju refresh zookeeper --switch ch:zookeeper --channel 3/edge
 ```
 
+(or use the `zookeeper_ubuntu-22.04-amd64.pr104.charm` file provided)
+
 6. Once all the units have upgraded, check that the Zookeeper servers are now running the new version by using
 
 ```
@@ -88,6 +105,8 @@ juju run-action kafka/leader pre-upgrade-check --wait
 ```
 juju refresh kafka --switch ch:kafka --channel 3/edge
 ```
+
+(or use the `kafka_ubuntu-22.04-amd64.pr158.charm` file provided)
 
 4. Once all the units have upgraded, check that the Kafka servers are now running the new version by using
 
